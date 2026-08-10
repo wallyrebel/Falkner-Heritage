@@ -1,0 +1,16 @@
+# OS / editor cruft
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
+
+# Local tooling
+.claude/
+node_modules/
+.vscode/
+.idea/
+
+# Source photography (full-resolution originals are not deployed)
+/originals/

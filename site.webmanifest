@@ -1,0 +1,22 @@
+{
+  "name": "Falkner MS Heritage — Museum & Park",
+  "short_name": "Falkner Heritage",
+  "description": "Preserving the past for Falkner's future generations. The Falkner Heritage Museum, Cooper Hill School House and Heritage Park in Falkner, Mississippi.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf6ee",
+  "theme_color": "#8e3129",
+  "icons": [
+    {
+      "src": "/assets/img/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

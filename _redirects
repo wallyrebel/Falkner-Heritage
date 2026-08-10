@@ -1,0 +1,14 @@
+# Cloudflare Pages redirects
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# Canonical host: send www to the apex domain.
+https://www.falknermsheritage.com/*  https://falknermsheritage.com/:splat  301!
+
+# Friendly short paths people may type or that may appear on printed material.
+/donate      /support           301
+/give        /support           301
+/museum      /                  301
+/cooper-hill /schoolhouse       301
+/car-show    /events            301
+/calendar    /events            301
+/directions  /visit             301

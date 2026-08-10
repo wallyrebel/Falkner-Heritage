@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <url>
+    <loc>https://falknermsheritage.com/</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://falknermsheritage.com/assets/img/schoolhouse-exterior.jpg</image:loc>
+      <image:title>Cooper Hill School House, Falkner Heritage Park</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://falknermsheritage.com/history</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://falknermsheritage.com/assets/img/museum-display.jpg</image:loc>
+      <image:title>Falkner Mississippi Heritage Museum display</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://falknermsheritage.com/schoolhouse</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://falknermsheritage.com/assets/img/cooper-hill-sign.jpg</image:loc>
+      <image:title>The original Cooper Hill School sign</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://falknermsheritage.com/community-center</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://falknermsheritage.com/assets/img/community-center-rendering.jpg</image:loc>
+      <image:title>Falkner Heritage Community Center rendering</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://falknermsheritage.com/events</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://falknermsheritage.com/assets/img/car-jeep-show-flyer.jpg</image:loc>
+      <image:title>Fall Festival Car &amp; Jeep Show fundraiser flyer</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://falknermsheritage.com/visit</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://falknermsheritage.com/support</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
