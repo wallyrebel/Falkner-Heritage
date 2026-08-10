@@ -1,8 +1,14 @@
 # Cloudflare Pages redirects
 # https://developers.cloudflare.com/pages/configuration/redirects/
 
-# Canonical host: send www to the apex domain.
-https://www.falknermsheritage.com/*  https://falknermsheritage.com/:splat  301!
+# NOTE: www -> apex cannot be done in this file. Cloudflare Pages only accepts
+# relative paths here, so any absolute "https://www..." rule is skipped at deploy.
+# Handle it in the Cloudflare dashboard instead, either by:
+#   1. adding www.falknermsheritage.com as a second custom domain on this Pages
+#      project (it will serve the same site), or
+#   2. Rules -> Redirect Rules on the falknermsheritage.com zone, redirecting
+#      hostname equals www.falknermsheritage.com to https://falknermsheritage.com/${path}
+# Option 2 is preferred: it keeps one canonical hostname for search engines.
 
 # Friendly short paths people may type or that may appear on printed material.
 /donate      /support           301
