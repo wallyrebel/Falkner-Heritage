@@ -23,7 +23,7 @@ this site.
 | `history.html` | The history of Falkner, Mississippi, with a dated timeline |
 | `schoolhouse.html` | The Cooper Hill School House — its founder, buildings, students and teachers |
 | `community-center.html` | The Community Center project, its phases, and the call for Phase 2 estimates |
-| `events.html` | Upcoming events and fundraising — the Car & Jeep Show, Founders Day, the Quilt Expo |
+| `events.html` | Upcoming events and fundraising — the Founder's Day Car & Jeep Show, the Heirloom Quilt Expo |
 | `visit.html` | Address, directions, map, what to see, contact |
 | `support.html` | Donating, volunteering, dedicating a bench, bidding on Phase 2 |
 | `404.html` | Not-found page (served automatically by Cloudflare Pages) |
