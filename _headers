@@ -24,3 +24,13 @@
 
 /
   Cache-Control: public, max-age=0, must-revalidate
+
+# The blog editor is private. Cloudflare Access gates it, and the Function
+# behind it sets these too; this covers the static shell as well.
+/admin
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
+
+/admin/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow

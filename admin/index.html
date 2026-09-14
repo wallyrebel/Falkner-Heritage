@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Blog editor — Falkner Heritage</title>
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,600;0,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css">
+<style>
+  /* The editor borrows the site's colours and type, but lays itself out as a
+     tool rather than a page. */
+  body { background: var(--paper-2); }
+
+  .bar {
+    background: var(--ink); color: var(--paper-2);
+    padding: .85rem var(--gut);
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 20;
+  }
+  .bar h1 {
+    font-size: 1.05rem; margin: 0; color: var(--white);
+    letter-spacing: .01em; flex: 1 1 auto;
+  }
+  .bar h1 small {
+    display: block; font-family: var(--font-body); font-weight: 400;
+    font-size: .74rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--brass-light);
+  }
+  .bar a, .bar button.linky {
+    color: var(--brass-light); font-size: .88rem;
+    background: none; border: 0; cursor: pointer; font-family: inherit;
+  }
+  .whoami { font-size: .84rem; color: rgba(250,246,238,.72); text-align: right; }
+  .whoami strong { color: var(--white); display: block; font-weight: 600; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: clamp(1.25rem, 3vw, 2.25rem) var(--gut) 5rem; }
+
+  .tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab {
+    border: 1px solid var(--rule); background: var(--white); color: var(--ink-soft);
+    border-radius: 999px; padding: .42rem 1rem; font: inherit; font-size: .87rem;
+    cursor: pointer;
+  }
+  .tab[aria-pressed="true"] { background: var(--depot); border-color: var(--depot); color: var(--white); }
+
+  .rowlist { display: flex; flex-direction: column; gap: .6rem; }
+  .row {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    background: var(--white); border: 1px solid var(--rule-soft);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: .95rem 1.15rem; text-align: left; width: 100%;
+    font: inherit; cursor: pointer;
+  }
+  .row:hover { box-shadow: var(--shadow-lift); }
+  .row-main { flex: 1 1 240px; min-width: 0; }
+  .row-title { font-family: var(--font-display); font-size: 1.06rem; font-weight: 600; }
+  .row-meta { font-size: .82rem; color: var(--ink-faint); margin-top: .15rem; }
+
+  .pill {
+    font-size: .7rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+    padding: .28rem .7rem; border-radius: 999px; white-space: nowrap;
+  }
+  .pill-draft     { background: var(--paper-3); color: var(--ink-soft); }
+  .pill-review    { background: #fdf0d8; color: var(--brass-dark); }
+  .pill-published { background: #e3ece4; color: var(--pine); }
+
+  .panel {
+    background: var(--white); border: 1px solid var(--rule-soft);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  label { display: block; font-weight: 600; margin: 1.5rem 0 .35rem; }
+  label:first-of-type { margin-top: 0; }
+  .hint { font-weight: 400; font-size: .85rem; color: var(--ink-faint); display: block; margin-top: .1rem; }
+
+  input[type=text], textarea, select {
+    width: 100%; font: inherit; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--rule);
+    border-radius: var(--radius); padding: .6rem .75rem;
+  }
+  input[type=text]:focus, textarea:focus, select:focus {
+    outline: 2px solid var(--depot); outline-offset: 1px; background: var(--white);
+  }
+  textarea { line-height: 1.6; resize: vertical; }
+  #f-body { min-height: 22rem; }
+
+  .actions {
+    position: sticky; bottom: 0; margin-top: 2rem;
+    background: var(--white); border-top: 1px solid var(--rule);
+    padding: 1rem 0 .25rem;
+    display: flex; gap: .6rem; flex-wrap: wrap; align-items: center;
+  }
+  .actions .spacer { flex: 1 1 auto; }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .btn--danger { background: none; color: #9c2b22; border: 1px solid rgba(156,43,34,.35); }
+
+  .flash {
+    padding: .8rem 1rem; border-radius: var(--radius); margin-bottom: 1.25rem;
+    font-size: .93rem; border: 1px solid transparent;
+  }
+  .flash-ok   { background: #e3ece4; border-color: #c3d6c6; color: #24401f; }
+  .flash-bad  { background: #fbe7e4; border-color: #eabfb8; color: #7a241c; }
+  .flash-busy { background: var(--paper-2); border-color: var(--rule); color: var(--ink-soft); }
+
+  .thumb {
+    display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap;
+    margin-top: .5rem;
+  }
+  .thumb img {
+    width: 170px; aspect-ratio: 4/3; object-fit: cover;
+    border-radius: var(--radius); border: 1px solid var(--rule);
+  }
+
+  details.help { margin-top: .5rem; font-size: .9rem; }
+  details.help summary { cursor: pointer; color: var(--depot); font-weight: 600; }
+  details.help table { border-collapse: collapse; margin-top: .7rem; width: 100%; }
+  details.help td { padding: .3rem .6rem .3rem 0; vertical-align: top; border-bottom: 1px solid var(--rule-soft); }
+  details.help code { background: var(--paper-2); padding: .1rem .35rem; border-radius: 3px; }
+
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--ink-faint); }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 560px) {
+    .actions { flex-direction: column; align-items: stretch; }
+    .actions .btn { width: 100%; text-align: center; }
+    .actions .spacer { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <h1>Falkner Heritage<small>Blog editor</small></h1>
+  <div class="whoami" id="whoami"></div>
+  <button class="linky" id="nav-people" type="button" hidden>People</button>
+  <a href="/blog" target="_blank" rel="noopener">View blog</a>
+  <a href="/cdn-cgi/access/logout">Sign out</a>
+</div>
+
+<div class="shell">
+  <div id="flash" class="flash" hidden></div>
+
+  <!-- ============ LIST ============ -->
+  <section id="screen-list">
+    <div class="tabs" id="tabs">
+      <button class="tab" type="button" data-filter="all" aria-pressed="true">All</button>
+      <button class="tab" type="button" data-filter="draft" aria-pressed="false">Drafts</button>
+      <button class="tab" type="button" data-filter="review" aria-pressed="false">Ready for review</button>
+      <button class="tab" type="button" data-filter="published" aria-pressed="false">Live on the site</button>
+      <span style="flex:1 1 auto"></span>
+      <button class="btn" type="button" id="new-post">Write a new post</button>
+    </div>
+    <div class="rowlist" id="rows"></div>
+    <div class="empty" id="list-empty" hidden>
+      <p>Nothing here yet.</p>
+      <p><button class="btn" type="button" id="new-post-2">Write your first post</button></p>
+    </div>
+  </section>
+
+  <!-- ============ EDITOR ============ -->
+  <section id="screen-editor" hidden>
+    <p><button class="linky" type="button" id="back" style="color:var(--depot);background:none;border:0;cursor:pointer;font:inherit">&larr; All posts</button></p>
+
+    <div class="panel">
+      <label for="f-title">Headline
+        <span class="hint">What this post is about, in a few words.</span>
+      </label>
+      <input type="text" id="f-title" maxlength="200" placeholder="Groundbreaking day at the Community Center">
+
+      <label for="f-summary">Short summary
+        <span class="hint">One or two sentences. Shown on the news page and when the post is shared on Facebook.</span>
+      </label>
+      <textarea id="f-summary" rows="2" maxlength="500"></textarea>
+
+      <label for="f-hero">Main photograph <span class="hint">Optional. It appears at the top of the post.</span></label>
+      <input type="file" id="f-hero" accept="image/jpeg,image/png,image/webp">
+      <div class="thumb" id="hero-thumb" hidden>
+        <img id="hero-img" alt="">
+        <div style="flex:1 1 220px">
+          <label for="f-heroalt" style="margin-top:0">Describe the photograph
+            <span class="hint">For people using a screen reader, and for Google. "Volunteers turning the first dirt at the Community Center site."</span>
+          </label>
+          <input type="text" id="f-heroalt" maxlength="300">
+          <p style="margin:.6rem 0 0"><button class="btn btn--ghost" type="button" id="hero-remove">Remove photograph</button></p>
+        </div>
+      </div>
+
+      <label for="f-body">The post</label>
+      <textarea id="f-body" placeholder="Write here. Leave a blank line between paragraphs."></textarea>
+
+      <p style="margin:.6rem 0 0">
+        <button class="btn btn--ghost" type="button" id="inline-photo">Add a photo inside the post</button>
+        <input type="file" id="f-inline" accept="image/jpeg,image/png,image/webp" hidden>
+      </p>
+
+      <details class="help">
+        <summary>How to make text bold, add a link, or make a list</summary>
+        <table>
+          <tr><td><code>**important**</code></td><td>makes it <strong>bold</strong></td></tr>
+          <tr><td><code>*gently*</code></td><td>makes it <em>italic</em></td></tr>
+          <tr><td><code>## A heading</code></td><td>starts a new section</td></tr>
+          <tr><td><code>- milk<br>- eggs</code></td><td>makes a bulleted list</td></tr>
+          <tr><td><code>1. first<br>2. second</code></td><td>makes a numbered list</td></tr>
+          <tr><td><code>[the events page](/events)</code></td><td>makes a link</td></tr>
+          <tr><td><code>&gt; a quote</code></td><td>sets a quotation apart</td></tr>
+        </table>
+        <p>Leave a blank line between paragraphs. Everything else is typed normally.</p>
+      </details>
+
+      <div class="actions">
+        <button class="btn" type="button" id="save">Save</button>
+        <button class="btn btn--ghost" type="button" id="preview">Preview</button>
+        <span class="spacer"></span>
+        <button class="btn btn--brass" type="button" id="send-review" hidden>Send for review</button>
+        <button class="btn btn--brass" type="button" id="publish" hidden>Put it on the site</button>
+        <button class="btn btn--ghost" type="button" id="unpublish" hidden>Take it off the site</button>
+        <button class="btn btn--danger" type="button" id="delete">Delete</button>
+      </div>
+      <p class="hint" id="status-line" style="margin-top:.75rem"></p>
+    </div>
+  </section>
+
+  <!-- ============ PEOPLE ============ -->
+  <section id="screen-people" hidden>
+    <p><button class="linky" type="button" id="back-2" style="color:var(--depot);background:none;border:0;cursor:pointer;font:inherit">&larr; All posts</button></p>
+    <div class="panel">
+      <h2 style="margin-top:0">People</h2>
+      <p class="hint" style="margin-bottom:1.5rem">
+        Anybody you add in Cloudflare Access appears here the first time they sign in.
+        <strong>Authors</strong> write posts and send them for review.
+        <strong>Editors</strong> can also put posts on the site.
+        <strong>Owners</strong> can do all of that and change this list.
+      </p>
+      <div class="rowlist" id="people"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var state = { me: null, posts: [], current: null, filter: 'all', dirty: false };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var flashEl = $('flash');
+  var flashTimer = null;
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function flash(message, kind, sticky) {
+    clearTimeout(flashTimer);
+    flashEl.className = 'flash flash-' + (kind || 'ok');
+    flashEl.textContent = message;
+    flashEl.hidden = false;
+    if (!sticky) flashTimer = setTimeout(function () { flashEl.hidden = true; }, 4500);
+  }
+  function clearFlash() { clearTimeout(flashTimer); flashEl.hidden = true; }
+
+  function api(path, options) {
+    var opts = options || {};
+    return fetch(path, {
+      method: opts.method || 'GET',
+      headers: opts.body && !(opts.body instanceof FormData)
+        ? { 'Content-Type': 'application/json' } : undefined,
+      body: opts.body instanceof FormData ? opts.body
+        : (opts.body ? JSON.stringify(opts.body) : undefined),
+      credentials: 'same-origin'
+    }).then(function (res) {
+      if (res.status === 401) {
+        flash('Your sign-in has expired. Reloading the page...', 'bad', true);
+        setTimeout(function () { location.reload(); }, 2000);
+        throw new Error('signed out');
+      }
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        if (!res.ok) throw new Error(body.error || ('Something went wrong (' + res.status + ').'));
+        return body;
+      });
+    });
+  }
+
+  /* ---------- screens ---------- */
+
+  function show(name) {
+    $('screen-list').hidden = name !== 'list';
+    $('screen-editor').hidden = name !== 'editor';
+    $('screen-people').hidden = name !== 'people';
+    window.scrollTo(0, 0);
+  }
+
+  function statusLabel(status) {
+    if (status === 'published') return 'Live on the site';
+    if (status === 'review') return 'Ready for review';
+    return 'Draft';
+  }
+
+  function when(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function renderList() {
+    var rows = $('rows');
+    var posts = state.posts.filter(function (p) {
+      return state.filter === 'all' || p.status === state.filter;
+    });
+
+    rows.innerHTML = posts.map(function (p) {
+      var meta = [statusLabel(p.status) === 'Live on the site'
+        ? 'Published ' + when(p.published_at)
+        : 'Edited ' + when(p.updated_at)];
+      if (state.me && p.author_email !== state.me.email) meta.push(p.author_name || p.author_email);
+      return '<button class="row" type="button" data-id="' + esc(p.id) + '">'
+        + '<span class="row-main">'
+        +   '<span class="row-title">' + esc(p.title) + '</span>'
+        +   '<span class="row-meta">' + esc(meta.join(' · ')) + '</span>'
+        + '</span>'
+        + '<span class="pill pill-' + esc(p.status) + '">' + esc(statusLabel(p.status)) + '</span>'
+        + '</button>';
+    }).join('');
+
+    $('list-empty').hidden = posts.length > 0 || state.posts.length > 0;
+    rows.hidden = posts.length === 0;
+
+    if (posts.length === 0 && state.posts.length > 0) {
+      rows.hidden = false;
+      rows.innerHTML = '<p class="empty">Nothing in this list.</p>';
+    }
+  }
+
+  function loadPosts() {
+    return api('/api/posts').then(function (data) {
+      state.posts = data.posts || [];
+      renderList();
+    });
+  }
+
+  /* ---------- editor ---------- */
+
+  function openPost(id) {
+    clearFlash();
+    return api('/api/posts/' + encodeURIComponent(id)).then(function (data) {
+      state.current = data.post;
+      fillEditor(data.post);
+      state.dirty = false;
+      show('editor');
+    }).catch(function (err) { flash(err.message, 'bad'); });
+  }
+
+  function fillEditor(post) {
+    $('f-title').value = post.title === 'Untitled post' ? '' : post.title;
+    $('f-summary').value = post.summary || '';
+    $('f-body').value = post.body || '';
+    $('f-heroalt').value = post.hero_alt || '';
+    setHero(post.hero_image_id);
+
+    var canPublish = state.me && state.me.canPublish;
+    $('publish').hidden = !canPublish || post.status === 'published';
+    $('unpublish').hidden = !canPublish || post.status !== 'published';
+    $('send-review').hidden = canPublish || post.status !== 'draft';
+    $('preview').disabled = false;
+
+    var line = statusLabel(post.status);
+    if (post.status === 'published') {
+      line += ' · published ' + when(post.published_at)
+        + ' · any change you save goes live straight away';
+    } else if (post.status === 'review') {
+      line += ' · an editor will look at it';
+    }
+    $('status-line').textContent = line;
+  }
+
+  function setHero(id) {
+    if (id) {
+      $('hero-img').src = '/media/' + id;
+      $('hero-thumb').hidden = false;
+    } else {
+      $('hero-img').removeAttribute('src');
+      $('hero-thumb').hidden = true;
+      $('f-heroalt').value = '';
+    }
+    if (state.current) state.current.hero_image_id = id || null;
+  }
+
+  function collect(status) {
+    return {
+      title: $('f-title').value.trim(),
+      summary: $('f-summary').value.trim(),
+      body: $('f-body').value,
+      hero_image_id: state.current.hero_image_id || null,
+      hero_alt: $('f-heroalt').value.trim(),
+      status: status || state.current.status
+    };
+  }
+
+  function save(status, message) {
+    var payload = collect(status);
+    if (!payload.title) { flash('Give the post a headline first.', 'bad'); $('f-title').focus(); return Promise.resolve(); }
+
+    flash('Saving...', 'busy', true);
+    return api('/api/posts/' + encodeURIComponent(state.current.id), { method: 'PUT', body: payload })
+      .then(function (data) {
+        state.current = data.post;
+        state.dirty = false;
+        fillEditor(data.post);
+        flash(message || 'Saved.', 'ok');
+        return loadPosts();
+      })
+      .catch(function (err) { flash(err.message, 'bad', true); });
+  }
+
+  /* ---------- photographs ---------- */
+
+  // A phone photograph is many times larger than a web page needs. Shrink it
+  // here so the upload is quick even on a slow connection out at the park.
+  function shrink(file) {
+    var MAX_EDGE = 1600;
+    var TARGET = 900000;
+
+    function draw(source, width, height) {
+      var scale = Math.min(1, MAX_EDGE / Math.max(width, height));
+      var w = Math.round(width * scale);
+      var h = Math.round(height * scale);
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(source, 0, 0, w, h);
+
+      return new Promise(function (resolve) {
+        (function attempt(quality) {
+          canvas.toBlob(function (blob) {
+            if (!blob) { resolve(null); return; }
+            if (blob.size <= TARGET || quality <= 0.5) {
+              resolve({ blob: blob, width: w, height: h });
+            } else {
+              attempt(quality - 0.12);
+            }
+          }, 'image/jpeg', quality);
+        })(0.84);
+      });
+    }
+
+    if (typeof createImageBitmap === 'function') {
+      return createImageBitmap(file).then(function (bitmap) {
+        return draw(bitmap, bitmap.width, bitmap.height);
+      });
+    }
+
+    // Older phones: fall back to an <img> element.
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        draw(img, img.naturalWidth, img.naturalHeight).then(function (out) {
+          URL.revokeObjectURL(url); resolve(out);
+        });
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('That file could not be read as a photograph.')); };
+      img.src = url;
+    });
+  }
+
+  function upload(file) {
+    flash('Preparing the photograph...', 'busy', true);
+    return shrink(file).then(function (out) {
+      if (!out) throw new Error('That photograph could not be resized.');
+      var form = new FormData();
+      form.append('file', out.blob, 'photo.jpg');
+      form.append('width', out.width);
+      form.append('height', out.height);
+      flash('Uploading...', 'busy', true);
+      return api('/api/media', { method: 'POST', body: form });
+    });
+  }
+
+  /* ---------- people ---------- */
+
+  function renderPeople(users) {
+    $('people').innerHTML = users.map(function (u) {
+      var options = ['author', 'editor', 'owner'].map(function (r) {
+        return '<option value="' + r + '"' + (u.role === r ? ' selected' : '') + '>'
+          + (r === 'author' ? 'Author' : r === 'editor' ? 'Editor' : 'Owner') + '</option>';
+      }).join('');
+      return '<div class="row" style="cursor:default">'
+        + '<span class="row-main">'
+        +   '<span class="row-title">' + esc(u.name || u.email) + '</span>'
+        +   '<span class="row-meta">' + esc(u.email)
+        +     (u.last_seen ? ' · last here ' + esc(when(u.last_seen)) : ' · never signed in')
+        +   '</span>'
+        + '</span>'
+        + (u.locked
+            ? '<span class="pill pill-published">Owner (set in Cloudflare)</span>'
+            : '<select data-email="' + esc(u.email) + '" style="width:auto">' + options + '</select>')
+        + '</div>';
+    }).join('');
+  }
+
+  /* ---------- events ---------- */
+
+  $('tabs').addEventListener('click', function (e) {
+    var tab = e.target.closest('.tab');
+    if (!tab) return;
+    state.filter = tab.dataset.filter;
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
+      t.setAttribute('aria-pressed', t === tab ? 'true' : 'false');
+    });
+    renderList();
+  });
+
+  $('rows').addEventListener('click', function (e) {
+    var row = e.target.closest('.row');
+    if (row && row.dataset.id) openPost(row.dataset.id);
+  });
+
+  function createPost() {
+    clearFlash();
+    api('/api/posts', { method: 'POST', body: {} }).then(function (data) {
+      state.current = data.post;
+      fillEditor(data.post);
+      state.dirty = false;
+      show('editor');
+      $('f-title').focus();
+      return loadPosts();
+    }).catch(function (err) { flash(err.message, 'bad'); });
+  }
+  $('new-post').addEventListener('click', createPost);
+  $('new-post-2').addEventListener('click', createPost);
+
+  function leaveEditor() {
+    if (state.dirty && !confirm('You have changes that are not saved. Leave anyway?')) return;
+    state.dirty = false;
+    clearFlash();
+    show('list');
+    loadPosts();
+  }
+  $('back').addEventListener('click', leaveEditor);
+  $('back-2').addEventListener('click', function () { show('list'); });
+
+  ['f-title', 'f-summary', 'f-body', 'f-heroalt'].forEach(function (id) {
+    $(id).addEventListener('input', function () { state.dirty = true; });
+  });
+
+  $('save').addEventListener('click', function () { save(null); });
+
+  $('publish').addEventListener('click', function () {
+    save('published', 'It is on the site now.').then(function () {
+      if (state.current && state.current.status === 'published') {
+        flash('Live at /blog/' + state.current.slug, 'ok');
+      }
+    });
+  });
+
+  $('unpublish').addEventListener('click', function () {
+    if (!confirm('Take this post off the public site? It stays here as a draft.')) return;
+    save('draft', 'Taken off the site. It is a draft again.');
+  });
+
+  $('send-review').addEventListener('click', function () {
+    save('review', 'Sent. An editor will take a look.');
+  });
+
+  $('preview').addEventListener('click', function () {
+    var go = function () { window.open('/blog/' + state.current.slug, '_blank', 'noopener'); };
+    if (state.dirty) save(null).then(go); else go();
+  });
+
+  $('delete').addEventListener('click', function () {
+    if (!confirm('Delete this post for good? This cannot be undone.')) return;
+    api('/api/posts/' + encodeURIComponent(state.current.id), { method: 'DELETE' })
+      .then(function () {
+        state.dirty = false;
+        flash('Deleted.', 'ok');
+        show('list');
+        return loadPosts();
+      })
+      .catch(function (err) { flash(err.message, 'bad', true); });
+  });
+
+  $('f-hero').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    upload(file).then(function (img) {
+      setHero(img.id);
+      state.dirty = true;
+      flash('Photograph added. Please describe it in the box beside it.', 'ok');
+      $('f-heroalt').focus();
+    }).catch(function (err) { flash(err.message, 'bad', true); })
+      .then(function () { e.target.value = ''; });
+  });
+
+  $('hero-remove').addEventListener('click', function () {
+    setHero(null);
+    state.dirty = true;
+  });
+
+  $('inline-photo').addEventListener('click', function () { $('f-inline').click(); });
+
+  $('f-inline').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    upload(file).then(function (img) {
+      var description = prompt('Describe this photograph in a few words:', '') || '';
+      var body = $('f-body');
+      var at = body.selectionStart != null ? body.selectionStart : body.value.length;
+      var snippet = '\n\n![' + description.replace(/[\[\]()]/g, '') + '](/media/' + img.id + ')\n\n';
+      body.value = body.value.slice(0, at) + snippet + body.value.slice(at);
+      state.dirty = true;
+      flash('Photograph placed in the post.', 'ok');
+    }).catch(function (err) { flash(err.message, 'bad', true); })
+      .then(function () { e.target.value = ''; });
+  });
+
+  $('nav-people').addEventListener('click', function () {
+    api('/api/users').then(function (data) {
+      renderPeople(data.users || []);
+      show('people');
+    }).catch(function (err) { flash(err.message, 'bad'); });
+  });
+
+  $('people').addEventListener('change', function (e) {
+    var select = e.target.closest('select[data-email]');
+    if (!select) return;
+    api('/api/users', { method: 'PUT', body: { email: select.dataset.email, role: select.value } })
+      .then(function () { flash('Updated.', 'ok'); })
+      .catch(function (err) { flash(err.message, 'bad', true); });
+  });
+
+  window.addEventListener('beforeunload', function (e) {
+    if (!state.dirty) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+
+  /* ---------- start ---------- */
+
+  api('/api/me').then(function (me) {
+    state.me = me;
+    $('whoami').innerHTML = '<strong>' + esc(me.name || me.email) + '</strong>'
+      + esc(me.role === 'owner' ? 'Owner' : me.role === 'editor' ? 'Editor' : 'Author');
+    $('nav-people').hidden = !me.canManageUsers;
+    if (!me.canPublish) {
+      flash('You can write and edit posts here. When one is ready, send it for review and an editor will put it on the site.', 'busy', true);
+    }
+    return loadPosts();
+  }).catch(function (err) {
+    flash(err.message, 'bad', true);
+  });
+})();
+</script>
+</body>
+</html>

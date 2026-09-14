@@ -25,6 +25,8 @@ this site.
 | `community-center.html` | The Community Center project, its phases, and the call for Phase 2 estimates |
 | `events.html` | Upcoming events and fundraising — the Founder's Day Car & Jeep Show, the Heirloom Quilt Expo |
 | `visit.html` | Address, directions, map, what to see, contact |
+| `/blog` | News & stories — written in the browser, not in this repository |
+| `/admin` | The private editor contributors sign in to |
 | `support.html` | Donating, volunteering, dedicating a bench, bidding on Phase 2 |
 | `404.html` | Not-found page (served automatically by Cloudflare Pages) |
 
@@ -38,6 +40,9 @@ this site.
 | `sitemap.xml`, `robots.txt` | Search engine discovery |
 | `site.webmanifest` | Icons and theme colour for mobile home screens |
 | `_headers`, `_redirects` | Cloudflare Pages caching, security headers, and short URLs |
+| `functions/` | The blog: its public pages, its private editor, and the sign-in check |
+| `admin/index.html` | The editor screen contributors see after signing in |
+| `schema.sql` | The blog database tables |
 
 ---
 
@@ -69,6 +74,35 @@ organisation can supply:
 
 ---
 
+## The blog
+
+`/blog` is the one part of this site that is **not** edited by changing files
+here. Posts are written at `/admin` by contributors who sign in with their
+email address, and they are stored in a Cloudflare D1 database.
+
+This exists so that remote volunteers can add news without being given access
+to the rest of the site: behind the sign-in there is nothing but the post
+composer, so there is no way to reach `history.html` or the donation page from
+it.
+
+Roles are **author** (writes, submits for review), **editor** (also publishes)
+and **owner** (also manages people). Everyone starts as an author; you change
+someone on the *People* screen inside `/admin`.
+
+**Setting it up takes about fifteen minutes and costs nothing.** The steps are
+in [`docs/BLOG-SETUP.md`](docs/BLOG-SETUP.md). Until it is set up, `/blog` and
+`/admin` politely say so and the rest of the site is unaffected.
+
+The pages under `functions/` are Cloudflare Pages Functions. They still need
+no build step — Cloudflare picks the folder up on deploy.
+
+A note on links: everything else on this site links with the `.html` suffix so
+the pages work when opened straight from disk. The blog cannot, because it is
+generated on request, so it is linked as `/blog`. That link only works on the
+deployed site.
+
+---
+
 ## Local preview
 
 No build step is needed, but pages look best over HTTP rather than `file://`:
@@ -78,6 +112,19 @@ python -m http.server 8123
 ```
 
 Then open <http://localhost:8123>.
+
+That serves the static pages only. To work on the blog as well, which needs
+the database and sign-in, use `npx wrangler pages dev .` instead.
+
+### Checks
+
+```bash
+bash tests/run.sh
+```
+
+Plain Node, no packages to install. It checks that a post body cannot inject
+anything into the site, that the blog pages render, and that each role can do
+only what it should.
 
 ---
 
