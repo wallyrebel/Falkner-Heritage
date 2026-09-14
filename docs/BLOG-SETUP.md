@@ -24,12 +24,24 @@ the database and Functions sit inside the Pages free tier.
 
 ## The quick way
 
-On your own computer, in a clone of this repository:
+On your own computer, in a clone of this repository.
+
+**macOS or Linux:**
 
 ```bash
 npx wrangler login                      # opens your browser, sign in to Cloudflare
 bash scripts/setup-blog-db.sh           # creates the database and its tables
 ```
+
+**Windows PowerShell:**
+
+```powershell
+npx wrangler login
+powershell -ExecutionPolicy Bypass -File scripts\setup-blog-db.ps1
+```
+
+> Windows PowerShell 5.1 does not understand `&&` between commands. Put each
+> command on its own line, or use `;` to separate them.
 
 Bind it (six clicks, no way around this one):
 
@@ -39,11 +51,22 @@ Bind it (six clicks, no way around this one):
 
 Then turn on the sign-in:
 
+**macOS or Linux:**
+
 ```bash
 export CF_API_TOKEN=...      # My Profile -> API Tokens -> Create Token
                              #   permission: Access: Apps and Policies -> Edit
 export CF_ACCOUNT_ID=...     # shown on the Workers & Pages page
 bash scripts/setup-access.sh you@example.com helper@example.com
+```
+
+**Windows PowerShell:**
+
+```powershell
+$env:CF_API_TOKEN  = "..."   # My Profile -> API Tokens -> Create Token
+                             #   permission: Access: Apps and Policies -> Edit
+$env:CF_ACCOUNT_ID = "..."   # shown on the Workers & Pages page
+powershell -ExecutionPolicy Bypass -File scripts\setup-access.ps1 you@example.com helper@example.com
 ```
 
 That prints four settings. Add them under **Settings → Variables and Secrets**
@@ -152,9 +175,11 @@ live posts; a saved change appears on the site immediately.
 The posts live in the D1 database rather than in this repository. To pull a
 full copy down at any time:
 
-```bash
+```
 npx wrangler d1 export falkner-blog --remote --output=blog-backup.sql
 ```
+
+That one works the same in PowerShell, Command Prompt and a Unix shell.
 
 Worth doing every few months, and before any big change.
 

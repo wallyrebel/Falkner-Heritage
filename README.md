@@ -90,7 +90,8 @@ and **owner** (also manages people). Everyone starts as an author; you change
 someone on the *People* screen inside `/admin`.
 
 **Setting it up takes about fifteen minutes and costs nothing.** The steps are
-in [`docs/BLOG-SETUP.md`](docs/BLOG-SETUP.md). Until it is set up, `/blog` and
+in [`docs/BLOG-SETUP.md`](docs/BLOG-SETUP.md), with scripts for both PowerShell
+and Unix shells under `scripts/`. Until it is set up, `/blog` and
 `/admin` politely say so and the rest of the site is unaffected.
 
 The pages under `functions/` are Cloudflare Pages Functions. They still need
